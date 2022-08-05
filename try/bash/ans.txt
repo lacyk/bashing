@@ -1,0 +1,62 @@
+
+
+ps -e | grep "Python"
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+To listing all tactics that opens a report, we will use the lsof command. 
+Because an executable need to be opened as a way to be run, we might also additionally simply use lsof for this purpose. 
+The subsequent trouble is that after we run a java report, we surely kind java some_file, 
+and if we difficulty lsof java it's going to coldly says that lsof: popularity blunders on java: 
+No such report or listing due to the fact the java is actually /usr/bin/java.
+
+To convert from java to /usr/bin/java we will use which java, so the command could be: 
+lsof $(which $EXE_FILE) The output might also additionally looks as if this: 
+lsof: WARNING: cannot stat() tracefs report system /sys/kernel/debug/tracing Output records can be incomplete. 
+
+COMMAND PID USER FD TYPE DEVICE SIZE/OFF NODE NAME python3 26969 consumer txt REG 8,1 4526456 15409 /usr/bin/python3.6 
+In this example I searched python3 as lsof $(which python3). It will document the PID withinside the 2nd field. 
+
+But whilst there may be some other consumer that invokes python3 too, lsof will difficulty the caution on stderr just 
+like the first strains as it can not study different customers info. 
+Therefore, we alter the command as: lsof $(which python3)  2> /dev/null to suppress the caution. 
+Then we are nearly there: lsof $(which python3) 2> /dev/null | awk 'NR > 1 ' 
+Then you could use study to trap the PID. Edit: a way to listing all tactics for all customers? 
+By default lsof would not study manner for a selected report, however after in addition analyzing guy lsof I observed that there are alternatives that meet your needs.
+ 
+ -a reasons listing choice alternatives to be ANDed. 
+ 
+ -c c selects the list of documents for tactics executing the command that starts offevolved with the characters of c. 
+ Multiple instructions can be specified, the use of a couple  of -c alternatives. 
+ 
+ -u s selects the list of documents for the consumer whose login names or consumer ID numbers are withinside  the comma-separated set s. 
+
+ Therefore, you could use lsof -c java to listing all instructions which might be run through java. 
+
+ And to peer a selected consumer, add -u choice as lsof -a -c java -u consumer -a is wanted for the AND operation. 
+
+ If you run this command you may see a couple of access for a manner, to precise them, run lsof -c java 2> /dev/null | sed 1d | sort -uk2,2 
+ 
+ Also please observe that customers might also additionally run their very own java of their course and consequently you need to 
+ determine which one to monitor: java or /usr/bin/java.
+
+-----------------------------------------------------------------------------------------------------
+
+#!/bin/sh
+check=`ps -e | grep "firefox"`
+if check=0
+then
+zenity --info --text "Please Close any Firefox Proccesses"
+else
+./AppLinux/run-mozilla.sh ./AppLinux/firefox-bin -profile ./Data/profile
+fi
+
+You probably want to check the exit code of the grep command, if it is 0 then firefox is found in the output of ps -ef, without the grep command, that's why I added the grep -v grep to the command
+
+////////////////////
+
+#!/bin/sh
+check=`ps -ef|grep firefox|grep -v grep`
+if [ $? -eq 0 ]
+then
+
+
