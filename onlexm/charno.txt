@@ -1,0 +1,1 @@
+grep -B 2 'end transaction' /Users/vlv/Desktop/exam.log | awk "NR==1{print} NR==3{print}"
